@@ -23,7 +23,7 @@ def loginUser(request):
         if user:
             messages.success(request, 'Login Successful')
         else:
-            pass
+            messages.error(request, 'Wrong Credentials')
     else:
         return render(request, 'auth/login.html',{
 
@@ -37,4 +37,34 @@ def logoutUser(request):
         logout()
 
 def signup(request):
-    pass
+    if request.method == "POST":
+        email = request.POST['email']
+        fName = request.POST['firstName']
+        lName = request.POST['lastName']
+        phoneNo = request.POST['phoneNo']
+        pw = request.POST['pw']
+        cpw = request.POST['cpw']
+        gender = request.POST['gender']
+        dob = request.POST['dob']
+
+        if cpw != pw:
+            messages.error(request,"The passwords does not match")
+        else:
+            user = CustomUser.objects.filter(email=email, password=cpw)
+            if not user:
+                if fName and lName and email and cpw:
+                    user = CustomUser.objects.create_user(
+                        
+                        email=email,
+                        first_name=fName, 
+                        last_name=lName,
+                        phoneNo=phoneNo,
+                        gender=gender,
+                        dob=dob,
+                        password=cpw,
+                        )
+                    user.save()
+                    return redirect('home')
+            else:
+                messages.error(request, "User already exist")
+    return render(request, 'auth/signup.html', )
