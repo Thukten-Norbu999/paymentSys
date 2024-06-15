@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.conf import settings
 # Create your models here.
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionManager, PermissionsMixin
@@ -98,14 +98,20 @@ class Account(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     account_no = models.CharField(default=accNo(), unique=True, max_length=9, editable=False)
     balance = models.PositiveIntegerField(default=0)
-
-    tpin = models.CharField(max_length=6)
+    qr_code_image = models.ImageField(upload_to='account_qr/', blank=True, null=True)
 
     def __str__(self):
         return self.account_no
-    
-    def hashedTpin(self):
-        pass
+
+    def save(self, *args, **kwargs):
+        # Only generate the QR code if the account is being created (not updated)
+        if not self.pk:
+            super().save(*args, **kwargs)
+            qr_path = self.qrcode()
+            self.qr_code_image = os.path.relpath(qr_path, settings.MEDIA_ROOT)
+            super().save(*args, **kwargs)
+        else:
+            super().save(*args, **kwargs)
 
     def qrcode(self):
         details = {
@@ -114,14 +120,20 @@ class Account(models.Model):
             'PhoneNo': f'{self.user.phoneNo}',
         }
         name = f"{self.account_no}.png"
-        if not os.path.exists('/media/account_qr/{}'.format(name)):
-            return segno.make_qr(" ".join(details.values())).save(name, scale=10)
-    
-    #TODO check if this works
+        file_path = os.path.join(settings.MEDIA_ROOT, 'account_qr', name)
+
+        # Create the directory if it doesn't exist
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+
+        if not os.path.exists(file_path):
+            qr = segno.make_qr(" ".join(details.values()))
+            qr.save(file_path, scale=10)
+
+        return file_path
 
     @staticmethod
     def get_qr_url(obj):
-        if obj.image and hasattr(obj.image, 'url'):
-            return obj.image.url
+        if obj.qr_code_image and hasattr(obj.qr_code_image, 'url'):
+            return obj.qr_code_image.url
         else:
-            return '/media/account_qr/' 
+            return os.path.join(settings.MEDIA_URL, 'account_qr/') 
