@@ -4,8 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 # Create your views here.
 from .models import CustomUser, Account
-
-
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
+def checkLegal(dob):
+        age = relativedelta(date.today(), datetime.strptime(dob, "%Y-%m-%d").date())
+        return age.years >= 18
 
 @login_required()
 def view_profile(request):
@@ -15,6 +18,8 @@ def view_profile(request):
         email = user.objects.email
         phoneNo = user.phoneNo
 
+    return render(request, 'profile/viewProfile.html')
+
 
 @login_required()
 def update_profile_view(request):
@@ -23,18 +28,24 @@ def update_profile_view(request):
 
 def loginUser(request):
     if request.method == "POST":
-        email = request.POST['email']
-        pw = request.POST['password']
+        email = request.POST["email"]
+        password = request.POST["password"]
 
-        user = authenticate(email, pw)
-        if user:
-            messages.success(request, 'Login Successful')
+        if email and password:
+            user = authenticate(request, email=email, password=password)
+            
+            if user is not None:
+                
+                login(request, user)
+                messages.success(request,'Login Successful')
+                return redirect('viewProfile')
+            else:
+                
+                messages.error(request, 'Wrong Credentials. Try again')
         else:
-            messages.error(request, 'Wrong Credentials')
-    else:
-        return render(request, 'auth/login.html',{
-
-        })
+            
+            messages.error(request, 'Please Enter The Details')
+    return render(request, 'auth/login.html')
 
 @login_required()
 def logoutUser(request):
@@ -54,7 +65,7 @@ def signup(request):
         gender = request.POST['gender']
         dob = request.POST['dob']
 
-        age = CustomUser.checkLegal(dob=dob)
+        age = checkLegal(dob=dob)
         if age:
             if cpw != pw:
                 messages.error(request,"The passwords does not match")
