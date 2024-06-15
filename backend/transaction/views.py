@@ -9,6 +9,10 @@ from django.contrib import messages
 def payment(request):
     user = request.user
 
+    if user.is_authenticated:
+        pass
+
+
 @login_required
 def viewHistory(request):
     user = request.user

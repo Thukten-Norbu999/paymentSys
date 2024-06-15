@@ -3,11 +3,18 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 # Create your views here.
-from .models import CustomUser
+from .models import CustomUser, Account
+
+
 
 @login_required()
 def view_profile(request):
-    pass
+    user = request.user
+
+    if user.is_authenticated:
+        email = user.objects.email
+        phoneNo = user.phoneNo
+
 
 @login_required()
 def update_profile_view(request):
@@ -33,7 +40,7 @@ def loginUser(request):
 def logoutUser(request):
     user = request.user
 
-    if user:
+    if user.is_authenticated:
         logout()
 
 def signup(request):
@@ -47,24 +54,31 @@ def signup(request):
         gender = request.POST['gender']
         dob = request.POST['dob']
 
-        if cpw != pw:
-            messages.error(request,"The passwords does not match")
-        else:
-            user = CustomUser.objects.filter(email=email, password=cpw)
-            if not user:
-                if fName and lName and email and cpw:
-                    user = CustomUser.objects.create_user(
-                        
-                        email=email,
-                        first_name=fName, 
-                        last_name=lName,
-                        phoneNo=phoneNo,
-                        gender=gender,
-                        dob=dob,
-                        password=cpw,
-                        )
-                    user.save()
-                    return redirect('home')
+        age = CustomUser.checkLegal(dob=dob)
+        if age:
+            if cpw != pw:
+                messages.error(request,"The passwords does not match")
             else:
-                messages.error(request, "User already exist")
+                user = CustomUser.objects.filter(email=email, password=cpw)
+                if not user:
+                    if fName and lName and email and cpw:
+                        user = CustomUser.objects.create_user(
+                            
+                            email=email,
+                            first_name=fName, 
+                            last_name=lName,
+                            phoneNo=phoneNo,
+                            gender=gender,
+                            dob=dob,
+                            password=cpw,
+                            )
+                        account = Account.objects.create(user=user)
+                        
+                        user.save()
+                        account.save()
+                        return redirect('home')
+                else:
+                    messages.error(request, "User already exist")
+        else:
+            messages.error(request, "The applicant should be 18 and above")
     return render(request, 'auth/signup.html', )

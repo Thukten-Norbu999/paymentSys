@@ -8,6 +8,8 @@ from django.utils.translation import gettext_lazy as lazyT
 
 import uuid, random, os, string, segno
 # Create your models here.
+from datetime import datetime, date
+from dateutil.relativedelta import relativedelta
 
 def accNo():
     accno = [random.choice(string.digits) for i in range(8)]
@@ -84,13 +86,18 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     def isUser(self):
         return self.role == 'user'
     
+    def checkLegal(self, dob):
+        age = relativedelta(date.today(), datetime.strptime(dob, "%Y-%m-%d").date())
+        return -age.years >= 18
+
+    
 
 
 class Account(models.Model):
     #id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     account_no = models.CharField(default=accNo(), unique=True, max_length=9, editable=False)
-    balance = models.PositiveIntegerField()
+    balance = models.PositiveIntegerField(default=0)
 
     tpin = models.CharField(max_length=6)
 
