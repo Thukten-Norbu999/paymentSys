@@ -2,9 +2,24 @@
 {% block title %} Profile {% endblock %}
 
 {% block content %}
-
+{% load static %}
 <center>
     <div class="container-md">
+      <center>
+        <div class="container-sm">
+          <h2>
+            {{account.account_no}}
+          </h2>
+          <h2>
+            {{account.balance}}
+          </h2>
+          {% if account.qrcode %}
+        <img src="./media/account_qr/640433157.png" alt="QR Code Image">
+        {% else %}
+            <p>No QR code image available.</p>
+        {% endif %}
+        </div>
+      </center>
         <div class="container-sm">
             <form class="row g-3">
                 <div class="col-md-6">
@@ -39,9 +54,9 @@
                   </select>
                 </div>
           
-                <div class="col-md-2">
+                <div class="col-md-4">
                   <label for="dob" class="form-label">Date of Birth</label>
-                  <input type="date" class="form-control" id="dob" name="dob" readonly value=''>
+                  <input type="date" class="form-control" id="dob" name="dob" readonly value={{dob}}>
                 </div>
           
                 

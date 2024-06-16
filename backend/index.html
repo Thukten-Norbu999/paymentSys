@@ -25,18 +25,11 @@
               <li class="nav-item">
                 <a class="nav-link" href="#">Pay</a>
               </li>
-                <li class="nav-item dropdown">
-                  <a class="nav-link dropdown-toggle" href="/settings" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="true">
-                    Settings
-                  </a>
-                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="/profile">Profile</a></li>
-                    <li><a class="dropdown-item" href="/history">Transaction History</a></li>
-                    <li><a class="dropdown-item" href="{{user.get_qr_url}}">QR code</a></li>
-                    <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#">Something else here</a></li>
-                  </ul>
-                </li>
+              <li class="nav-item"><a class="nav-link" href="/settings">Settings</a></li>
+              <li class="nav-item"><a class="nav-link" href="/profile">Profile</a></li>
+              <li class="nav-item"><a class="nav-link" href="/history">Transaction History</a></li>
+        
+                
                 
                 
                 <!-- <li class="nav-item">
@@ -56,16 +49,24 @@
         </div>
       </nav>
       
-      {% if messages %}
+    {% if messages %}
       {% for message in messages %}
-      <div class="container mt-5">
-          <div class="alert alert-warning alert-dismissible fade show" role="alert">
-              <strong>Warning!</strong> {{message}}
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-              </button>
+        {% if message.tags == 'success' %}
+          <div class="container mt-5">
+              <div class="alert alert-success alert-dismissible fade show" role="alert">
+                  <strong>Success!</strong> {{message}}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
           </div>
-      </div>
+
+        {% else %}
+          <div class="container mt-5">
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <strong>Warning!</strong> {{message}}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        {% endif %}
   
   
       {% endfor %}

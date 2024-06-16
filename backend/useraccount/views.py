@@ -14,21 +14,28 @@ def checkLegal(dob):
         return age.years >= 18
 
 @login_required(login_url='/login/')
+def settingsView(request):
+    return render(request, 'profile/settings.html')
+
+@login_required(login_url='/login/')
 def view_profile(request):
     try:
         # Retrieve the current user's CustomUser object
         user = CustomUser.objects.get(email=request.user.email)
-    except CustomUser.DoesNotExist:
+        account = Account.objects.get(user=user)
+    except CustomUser.DoesNotExist or Account.DoesNotExist:
         # Handle the case where the user doesn't exist (optional)
         return render(request, 'profile/error.html')
 
+    
+    
     # Access user attributes directly
     email = user.email
     phoneNo = user.phoneNo
     dob = date.isoformat(user.dob)
     # print(type(dob))
 
-    return render(request, 'profile/viewProfile.html', {'email': email, 'phoneNo': phoneNo, 'dob':dob})
+    return render(request, 'profile/viewProfile.html', {'email': email, 'phoneNo': phoneNo, 'dob':dob, 'account':account})
 
 @login_required(login_url='/login/')
 def update_profile_view(request):
@@ -43,9 +50,12 @@ def loginUser(request):
             email = request.POST["email"]
             password = request.POST["password"]
 
-            if email and password:
-                user = authenticate(request, email=email, password=password)
                 
+            user = authenticate(request, email=email, password=password)
+            check = CustomUser.objects.filter(email=email)
+            if check:
+
+            
                 if user is not None:
                     
                     login(request, user)
@@ -53,10 +63,11 @@ def loginUser(request):
                     return redirect('viewProfile')
                 else:
                     
-                    messages.error(request, 'Wrong Credentials. Try again')
+                    messages.error(request, 'Wrong Credentials. Try again with correct credentials')
             else:
-                
-                messages.error(request, 'Please Enter The Details')
+                messages.error(request, 'User Does Not Exist')
+            
+            
         return render(request, 'auth/login.html')
     
 
@@ -80,31 +91,32 @@ def signup(request):
             gender = request.POST['gender']
             dob = request.POST['dob']
 
-        age = checkLegal(dob=dob)
-        if age:
-            if cpw != pw:
-                messages.error(request,"The passwords does not match")
-            else:
-                user = CustomUser.objects.filter(email=email, password=cpw)
-                if not user:
-                    if fName and lName and email and cpw:
-                        user = CustomUser.objects.create_user(
-                            
-                            email=email,
-                            first_name=fName, 
-                            last_name=lName,
-                            phoneNo=phoneNo,
-                            gender=gender,
-                            dob=dob,
-                            password=cpw,
-                            )
-                        account = Account.objects.create(user=user)
-                        
-                        user.save()
-                        account.save()
-                        return redirect('home')
+            age = checkLegal(dob=dob)
+            if age:
+                if cpw != pw:
+                    messages.error(request,"The passwords does not match")
                 else:
-                    messages.error(request, "User already exist")
-        else:
-            messages.error(request, "The applicant should be 18 and above")
+                    user = CustomUser.objects.filter(email=email)
+                    if not user:
+                        if fName and lName and email and cpw:
+                            user = CustomUser.objects.create_user(
+                                
+                                email=email,
+                                first_name=fName, 
+                                last_name=lName,
+                                phoneNo=phoneNo,
+                                gender=gender,
+                                dob=dob,
+                                password=cpw,
+                                )
+                            
+                            
+                            user.save()
+                            account = Account.objects.create(user=user)
+                            account.save()
+                            return redirect('home')
+                    else:
+                        messages.error(request, "User already exist")
+            else:
+                messages.error(request, "The applicant should be 18 and above")
     return render(request, 'auth/signup.html', )

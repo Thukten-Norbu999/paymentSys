@@ -94,9 +94,9 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class Account(models.Model):
     #id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    account_no = models.CharField(default=accNo() ,max_length=9, editable=False)
+    account_no = models.CharField(default=accNo() ,max_length=9, editable=False, unique=True)
     balance = models.PositiveIntegerField(default=0)
-    qr_code_image = models.ImageField(upload_to='account_qr/', blank=True, null=True)
+    qr_code_image = models.ImageField(upload_to='profile/account_qr/', blank=True, null=True)
 
     class Meta:
         constraints = [
@@ -124,7 +124,7 @@ class Account(models.Model):
             'PhoneNo': f'{self.user.phoneNo}',
         }
         name = f"{self.account_no}.png"
-        file_path = os.path.join(settings.MEDIA_ROOT, 'account_qr', name)
+        file_path = os.path.join(settings.MEDIA_ROOT, 'profile/account_qr', name)
 
         # Create the directory if it doesn't exist
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
@@ -133,11 +133,11 @@ class Account(models.Model):
             qr = segno.make_qr(" ".join(details.values()))
             qr.save(file_path, scale=10)
 
-        return file_path
+        return file_path, name
 
     @staticmethod
     def get_qr_url(obj):
-        if obj.qr_code_image and hasattr(obj.qr_code_image, 'url'):
-            return obj.qr_code_image.url
+        if obj.qrcode and hasattr(obj.qrcode, 'url'):
+            return obj.qrcode.url
         else:
-            return os.path.join(settings.MEDIA_URL, 'account_qr/') 
+            return os.path.join(settings.MEDIA_URL, 'profile/account_qr/') 
