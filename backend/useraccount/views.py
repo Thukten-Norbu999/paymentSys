@@ -70,7 +70,7 @@ def signup(request):
             if cpw != pw:
                 messages.error(request,"The passwords does not match")
             else:
-                user = CustomUser.objects.filter(email=email, password=cpw)
+                user = CustomUser.objects.get(email=email)
                 if not user:
                     if fName and lName and email and cpw:
                         user = CustomUser.objects.create_user(
@@ -83,10 +83,10 @@ def signup(request):
                             dob=dob,
                             password=cpw,
                             )
-                        account = Account.objects.create(user=user)
+                        # account = Account.objects.create(user=user)
                         
                         user.save()
-                        account.save()
+                        # account.save()
                         return redirect('home')
                 else:
                     messages.error(request, "User already exist")
