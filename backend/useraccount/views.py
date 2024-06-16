@@ -13,6 +13,9 @@ def checkLegal(dob):
         age = relativedelta(date.today(), datetime.strptime(dob, "%Y-%m-%d").date())
         return age.years >= 18
 
+def home(request):
+    return render(request, 'home.html')
+
 @login_required(login_url='/login/')
 def settingsView(request):
     return render(request, 'profile/settings.html')
