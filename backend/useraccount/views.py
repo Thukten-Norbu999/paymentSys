@@ -6,65 +6,81 @@ from django.contrib import messages
 from .models import CustomUser, Account
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
+
+
+
 def checkLegal(dob):
         age = relativedelta(date.today(), datetime.strptime(dob, "%Y-%m-%d").date())
         return age.years >= 18
 
-@login_required()
+@login_required(login_url='/login/')
 def view_profile(request):
-    user = request.user
+    try:
+        # Retrieve the current user's CustomUser object
+        user = CustomUser.objects.get(email=request.user.email)
+    except CustomUser.DoesNotExist:
+        # Handle the case where the user doesn't exist (optional)
+        return render(request, 'profile/error.html')
 
-    if user.is_authenticated:
-        email = user.objects.email
-        phoneNo = user.phoneNo
+    # Access user attributes directly
+    email = user.email
+    phoneNo = user.phoneNo
+    dob = date.isoformat(user.dob)
+    # print(type(dob))
 
-    return render(request, 'profile/viewProfile.html')
+    return render(request, 'profile/viewProfile.html', {'email': email, 'phoneNo': phoneNo, 'dob':dob})
 
-
-@login_required()
+@login_required(login_url='/login/')
 def update_profile_view(request):
     pass
 
 
 def loginUser(request):
-    if request.method == "POST":
-        email = request.POST["email"]
-        password = request.POST["password"]
+    if request.user.is_authenticated:
+        return redirect('viewProfile')
+    else:
+        if request.method == "POST":
+            email = request.POST["email"]
+            password = request.POST["password"]
 
-        if email and password:
-            user = authenticate(request, email=email, password=password)
-            
-            if user is not None:
+            if email and password:
+                user = authenticate(request, email=email, password=password)
                 
-                login(request, user)
-                messages.success(request,'Login Successful')
-                return redirect('viewProfile')
+                if user is not None:
+                    
+                    login(request, user)
+                    messages.success(request,'Login Successful')
+                    return redirect('viewProfile')
+                else:
+                    
+                    messages.error(request, 'Wrong Credentials. Try again')
             else:
                 
-                messages.error(request, 'Wrong Credentials. Try again')
-        else:
-            
-            messages.error(request, 'Please Enter The Details')
-    return render(request, 'auth/login.html')
+                messages.error(request, 'Please Enter The Details')
+        return render(request, 'auth/login.html')
+    
 
-@login_required()
+@login_required(login_url='/login/')
 def logoutUser(request):
-    user = request.user
-
-    if user.is_authenticated:
-        logout()
+    if request.user.is_authenticated:
+        logout(request)
+        return redirect('loginUser')
 
 def signup(request):
-    if request.method == "POST":
-        email = request.POST['email']
-        fName = request.POST['firstName']
-        lName = request.POST['lastName']
-        phoneNo = request.POST['phoneNo']
-        pw = request.POST['pw']
-        cpw = request.POST['cpw']
-        gender = request.POST['gender']
-        dob = request.POST['dob']
+    if request.user.is_authenticated:
+        return redirect('viewProfile')
+    else:
+        if request.method == "POST":
+            email = request.POST['email']
+            fName = request.POST['firstName']
+            lName = request.POST['lastName']
+            phoneNo = request.POST['phoneNo']
+            pw = request.POST['pw']
+            cpw = request.POST['cpw']
+            gender = request.POST['gender']
+            dob = request.POST['dob']
 
+<<<<<<< HEAD
         age = checkLegal(dob=dob)
         if age:
             if cpw != pw:
@@ -88,8 +104,36 @@ def signup(request):
                         user.save()
                         # account.save()
                         return redirect('home')
+=======
+            age = checkLegal(dob=dob)
+            if age:
+                if cpw != pw:
+                    messages.error(request,"The passwords does not match")
+>>>>>>> sessionFeature
                 else:
-                    messages.error(request, "User already exist")
-        else:
-            messages.error(request, "The applicant should be 18 and above")
+                    user = CustomUser.objects.filter(email=email)
+                    if not user:
+                        if fName and lName and email and cpw:
+                            user = CustomUser.objects.create_user(
+                                
+                                email=email,
+                                first_name=fName, 
+                                last_name=lName,
+                                phoneNo=phoneNo,
+                                gender=gender,
+                                dob=dob,
+                                password=cpw,
+                                )
+                            
+                            account = Account(user)
+
+                            user.save()
+                            account.save()
+                            
+                            
+                            return redirect('viewProfile')
+                    else:
+                        messages.error(request, "User already exist")
+            else:
+                messages.error(request, "The applicant should be 18 and above")
     return render(request, 'auth/signup.html', )

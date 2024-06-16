@@ -36,6 +36,7 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_active", True)
+        extra_fields.setdefault("role", "ADMIN")
 
         # if extra_fields.get("is_staff") is not True:
         #     raise ValueError(lazyT("Superuser must have is_staff=True."))
@@ -47,7 +48,7 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     ROLES = (
         ('ADMIN','admin'),
-        ('TUTOR','tutor'),
+        ('TELLER','teller'),
         ('USER', 'user')
     )
     GENDER = (
@@ -93,9 +94,15 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 class Account(models.Model):
     #id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    account_no = models.CharField(default=accNo(), max_length=9, editable=False)
+    account_no = models.CharField(default=accNo() ,max_length=9, editable=False)
     balance = models.PositiveIntegerField(default=0)
     qr_code_image = models.ImageField(upload_to='account_qr/', blank=True, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'account_no'], name='unique_user_account')
+        ]
+
 
     def __str__(self):
         return self.account_no

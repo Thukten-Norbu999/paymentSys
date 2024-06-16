@@ -1,4 +1,4 @@
-{extends 'index.html'}
+{%extends 'index.html'%}
 {% block title %} Profile {% endblock %}
 
 {% block content %}
@@ -9,7 +9,7 @@
             <form class="row g-3">
                 <div class="col-md-6">
                   <label for="inputEmail4" class="form-label">Email</label>
-                  <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com" readonly value={{}}>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="email@example.com" readonly value={{email}}>
                 </div>
                 <!-- <div class="col-md-6">
                   <label for="inputPassword4" class="form-label">Password</label>
@@ -18,16 +18,16 @@
                 
                 <div class="col-md-6">
                   <label for="firstName" class="form-label">First Name</label>
-                  <input type="text" class="form-control" id="firstName" name="firstName" required>
+                  <input type="text" class="form-control" id="firstName" name="firstName" value='' readonly>
                 </div>
                 <div class="col-md-6">
                   <label for="lastName" class="form-label">Last Name</label>
-                  <input type="text" class="form-control" id="lastName" name="lastName" required>
+                  <input type="text" class="form-control" id="lastName" name="lastName" readonly value="">
                 </div>
                 
                 <div class="col-md-6">
                   <label for="phoneNo" class="form-label">Phone No</label>
-                  <input type="text" class="form-control" id="phoneNo" name="phoneNo" readonly value={{}}>
+                  <input type="text" class="form-control" id="phoneNo" name="phoneNo" readonly value={{phoneNo}}>
                 </div>
                 <div class="col-md-4">
                   <label for="inputState" class="form-label">Gender</label>
@@ -41,7 +41,7 @@
           
                 <div class="col-md-2">
                   <label for="dob" class="form-label">Date of Birth</label>
-                  <input type="date" class="form-control" id="dob" name="dob" readonly value={{}}>
+                  <input type="date" class="form-control" id="dob" name="dob" readonly value=''>
                 </div>
           
                 
