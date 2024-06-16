@@ -10,7 +10,7 @@ def checkLegal(dob):
         age = relativedelta(date.today(), datetime.strptime(dob, "%Y-%m-%d").date())
         return age.years >= 18
 
-@login_required
+@login_required(login_url='/login/')
 def view_profile(request):
     try:
         # Retrieve the current user's CustomUser object
@@ -25,9 +25,9 @@ def view_profile(request):
     dob = date.isoformat(user.dob)
     # print(type(dob))
 
-    return render(request, 'profile/viewProfile.html', {'email': email, 'phoneNo': phoneNo, })
+    return render(request, 'profile/viewProfile.html', {'email': email, 'phoneNo': phoneNo, 'dob':dob})
 
-@login_required()
+@login_required(login_url='/login/')
 def update_profile_view(request):
     pass
 
@@ -53,12 +53,10 @@ def loginUser(request):
             messages.error(request, 'Please Enter The Details')
     return render(request, 'auth/login.html')
 
-@login_required
+@login_required(login_url='/login/')
 def logoutUser(request):
-    user = request.user
-
-    if user.is_authenticated:
-        logout(user)
+    logout(request.user)
+    return redirect('login')
 
 def signup(request):
     if request.method == "POST":
@@ -89,10 +87,10 @@ def signup(request):
                             dob=dob,
                             password=cpw,
                             )
-                        account = Account.objects.create(user=user)
+                        
                         
                         user.save()
-                        account.save()
+                        
                         return redirect('home')
                 else:
                     messages.error(request, "User already exist")
