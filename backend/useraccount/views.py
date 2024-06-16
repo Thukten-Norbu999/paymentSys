@@ -80,13 +80,12 @@ def signup(request):
             gender = request.POST['gender']
             dob = request.POST['dob']
 
-<<<<<<< HEAD
         age = checkLegal(dob=dob)
         if age:
             if cpw != pw:
                 messages.error(request,"The passwords does not match")
             else:
-                user = CustomUser.objects.get(email=email)
+                user = CustomUser.objects.filter(email=email, password=cpw)
                 if not user:
                     if fName and lName and email and cpw:
                         user = CustomUser.objects.create_user(
@@ -99,41 +98,13 @@ def signup(request):
                             dob=dob,
                             password=cpw,
                             )
-                        # account = Account.objects.create(user=user)
+                        account = Account.objects.create(user=user)
                         
                         user.save()
-                        # account.save()
+                        account.save()
                         return redirect('home')
-=======
-            age = checkLegal(dob=dob)
-            if age:
-                if cpw != pw:
-                    messages.error(request,"The passwords does not match")
->>>>>>> sessionFeature
                 else:
-                    user = CustomUser.objects.filter(email=email)
-                    if not user:
-                        if fName and lName and email and cpw:
-                            user = CustomUser.objects.create_user(
-                                
-                                email=email,
-                                first_name=fName, 
-                                last_name=lName,
-                                phoneNo=phoneNo,
-                                gender=gender,
-                                dob=dob,
-                                password=cpw,
-                                )
-                            
-                            account = Account(user)
-
-                            user.save()
-                            account.save()
-                            
-                            
-                            return redirect('viewProfile')
-                    else:
-                        messages.error(request, "User already exist")
-            else:
-                messages.error(request, "The applicant should be 18 and above")
+                    messages.error(request, "User already exist")
+        else:
+            messages.error(request, "The applicant should be 18 and above")
     return render(request, 'auth/signup.html', )
