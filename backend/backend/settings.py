@@ -43,6 +43,10 @@ INSTALLED_APPS = [
     'transaction',
 ]
 
+SESSION_COOKIE_AGE = 1800  # 30 minutes (1800 seconds)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+SESSION_SAVE_EVERY_REQUEST = True
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -51,6 +55,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+    'useraccount.middleware.SessionTimeoutMiddleware'
 ]
 
 ROOT_URLCONF = 'backend.urls'

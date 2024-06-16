@@ -10,16 +10,22 @@ def checkLegal(dob):
         age = relativedelta(date.today(), datetime.strptime(dob, "%Y-%m-%d").date())
         return age.years >= 18
 
-@login_required()
+@login_required
 def view_profile(request):
-    user = request.user
+    try:
+        # Retrieve the current user's CustomUser object
+        user = CustomUser.objects.get(email=request.user.email)
+    except CustomUser.DoesNotExist:
+        # Handle the case where the user doesn't exist (optional)
+        return render(request, 'profile/error.html')
 
-    if user.is_authenticated:
-        email = user.objects.email
-        phoneNo = user.phoneNo
+    # Access user attributes directly
+    email = user.email
+    phoneNo = user.phoneNo
+    dob = date.isoformat(user.dob)
+    # print(type(dob))
 
-    return render(request, 'profile/viewProfile.html')
-
+    return render(request, 'profile/viewProfile.html', {'email': email, 'phoneNo': phoneNo, })
 
 @login_required()
 def update_profile_view(request):
@@ -47,12 +53,12 @@ def loginUser(request):
             messages.error(request, 'Please Enter The Details')
     return render(request, 'auth/login.html')
 
-@login_required()
+@login_required
 def logoutUser(request):
     user = request.user
 
     if user.is_authenticated:
-        logout()
+        logout(user)
 
 def signup(request):
     if request.method == "POST":
