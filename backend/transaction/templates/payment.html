@@ -1,0 +1,95 @@
+{% extends 'index.html' %}
+{% block title %} Login {% endblock %}
+{% block content%}
+
+<div class="container">
+  <div class="row justify-content-center">
+      <div class="col-md-6">
+          <div class="card mt-5">
+              <div class="card-header text-center">
+                  <h3>Login</h3>
+              </div>
+              <div class="card-body">
+                
+                  <form method="post" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="col-md-6">
+                        <label for="acc" class="form-label">Account</label>
+                        <select id="acc" name="acc" class="form-select" required>
+                          <option selected>Choose...</option>
+                          <option value="{{account.account_no}}">{{account.account_no}}</option>
+                          
+                        </select>
+                      </div>
+                      <div class="container-md">
+                        <br>
+                      </div>
+                      <div class="form-group row">
+                          <label for="amt" class="col-sm-3 col-form-label">Amount</label>
+                          <div class="col-sm-9">
+                              <input type="number" class="form-control" id="amt" name="amt" required step='any'>
+                          </div>
+                      </div>
+                      <div class="container-md">
+                        <br>
+                      </div>
+                      <div class="form-group row">
+                          <label for="to" class="col-sm-3 col-form-label">Recipient Account</label>
+                          <div class="col-sm-9">
+                              <input type="text" class="form-control" id="to" name="to" required>
+                          </div>
+                      </div>
+                      <div class="form-group row">
+                        <label for="remark" class="col-sm-3 col-form-label">Remarks</label>
+                        <div class="col-sm-9">
+                            <textarea name="remark" id="remark"></textarea>
+                            
+                        </div>
+                    </div>
+                    
+                    <div class="container-md">
+                      <br>
+                    </div>
+                      <div class="container-md">
+                        <br>
+                      </div>
+                      <div class="form-group row">
+                        <button type="submit" class="btn btn-primary">
+                            Pay
+                        </button>
+                        <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#confirmationModal">
+                            Confirm
+                        </button> -->
+                    </div>
+                  </form>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<!-- <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirm Transfer</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          
+          <form method="post" id="confirmationForm">
+            {% csrf_token %}
+            <div class="col-12">
+                <label for="tpin" class="form-label">T-pin</label>
+                <input type="password" class="form-control" id="tpin" name="tpin" placeholder="" required>
+              </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" form="confirmationForm" class="btn btn-primary">Transfer</button>
+        </div>
+      </div>
+    </div>
+  </div> -->
+{% endblock %}

@@ -27,9 +27,8 @@ def settingsView(request):
 def view_profile(request):
     try:
         # Retrieve the current user's CustomUser object
-        # user = CustomUser.objects.get(email=request.user.email)
-        account = Account.objects.get(user=request.user)
-        
+        user = CustomUser.objects.get(email=request.user.email)
+        account = Account.objects.get(user=user)
     except Account.DoesNotExist:
         try:
             account = Account.objects.create(user=request.user)
@@ -46,7 +45,6 @@ def view_profile(request):
     phoneNo = user.phoneNo
     dob = date.isoformat(user.dob)
     qr_url = account.get_qr_url(account)+"{}".format(account.qrcode())
-    print(qr_url)
     # print(type(dob))
     content = {
         'email': email, 
@@ -80,7 +78,7 @@ def loginUser(request):
                     
                     login(request, user)
                     messages.success(request,'Login Successful')
-                    return redirect('viewProfile')
+                    return redirect('home')
                 else:
                     
                     messages.error(request, 'Wrong Credentials. Try again with correct credentials')
@@ -134,7 +132,7 @@ def signup(request):
                             
                             user.save()
                             login(request,user)
-                            return redirect('viewProfile')
+                            return redirect('home')
                     else:
                         messages.error(request, "User already exist")
             else:

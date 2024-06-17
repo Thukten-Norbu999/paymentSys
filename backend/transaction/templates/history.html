@@ -1,0 +1,13 @@
+{% extends 'index.html' %}
+{% block title %} Transaction History {% endblock %}
+{% block content %}
+{% if transactions %}
+    {% for transaction in transactions %}
+        <div class="container">
+            {{transaction}}
+        </div>
+    {% endfor %}
+{% else %}
+<h1>No Transaction</h1>
+{% endif %}
+{% endblock %}

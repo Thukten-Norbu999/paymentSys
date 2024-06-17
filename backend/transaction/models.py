@@ -18,7 +18,8 @@ def gen_journalNumber() -> str:
 class Transactions(models.Model):
     #account = models.ForeignKey(Account)
     id = models.UUIDField(default=uuid.uuid4, verbose_name="ID", editable=False, primary_key=True)
-    amount = models.PositiveIntegerField(verbose_name="Amount")
+    amount = models.FloatField(verbose_name="Amount")
+    
     frm = models.CharField(max_length=9, verbose_name="From account")
     to = models.CharField(max_length=9, verbose_name="To account", )
     remarks = models.CharField(max_length=250, verbose_name="Remarks")
@@ -29,18 +30,12 @@ class Transactions(models.Model):
 
     class Meta:
         ordering = ['-date']
+        constraints = [
+            models.UniqueConstraint(fields=['id', 'journalNo'], name='unique_transaction')
+        ]
 
 
-    def moneyTransfer(self):
-        fr = Account.objects.get(self.frm)
-        to = Account.objects.get(self.to)
-
-        if fr.balance >= self.amount:
-            fr.balance -= self.amount
-            to.balance += self.amount
-            return True, "Transfser Done"
-        else:
-             return False, "Insufficient Balance"
+    
 
 
     def mail(self, success:bool):
