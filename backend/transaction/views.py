@@ -89,7 +89,7 @@ def viewHistory(request):
     
     account = Account.objects.get(user=user)
     
-    transactions = Transactions.objects.filter(frm=account.account_no)
+    transactions = Transactions.objects.filter(frm=account.account_no, to=account.account_no)
 
     content = {
         'transactions':transactions,
