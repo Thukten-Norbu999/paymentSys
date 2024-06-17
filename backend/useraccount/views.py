@@ -6,12 +6,18 @@ from django.contrib import messages
 from .models import CustomUser, Account
 from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
+from django.http import Http404
+from django.db import IntegrityError
 
 
+# from .decorator import unauthenticated_user, checkAccountExistent
 
 def checkLegal(dob):
         age = relativedelta(date.today(), datetime.strptime(dob, "%Y-%m-%d").date())
         return age.years >= 18
+
+def home(request):
+    return render(request, 'home.html')
 
 @login_required(login_url='/login/')
 def settingsView(request):
@@ -21,21 +27,35 @@ def settingsView(request):
 def view_profile(request):
     try:
         # Retrieve the current user's CustomUser object
-        user = CustomUser.objects.get(email=request.user.email)
-        account = Account.objects.get(user=user)
-    except CustomUser.DoesNotExist or Account.DoesNotExist:
+        # user = CustomUser.objects.get(email=request.user.email)
+        account = Account.objects.get(user=request.user)
+        
+    except Account.DoesNotExist:
+        try:
+            account = Account.objects.create(user=request.user)
+            account.save()
+        except IntegrityError:
+            pass
         # Handle the case where the user doesn't exist (optional)
-        return render(request, 'profile/error.html')
+        
 
-    
-    
+    user = request.user
+    account = Account.objects.get(user=user)
     # Access user attributes directly
     email = user.email
     phoneNo = user.phoneNo
     dob = date.isoformat(user.dob)
+    qr_url = account.get_qr_url(account)+"{}".format(account.qrcode())
+    print(qr_url)
     # print(type(dob))
-
-    return render(request, 'profile/viewProfile.html', {'email': email, 'phoneNo': phoneNo, 'dob':dob, 'account':account})
+    content = {
+        'email': email, 
+        'phoneNo': phoneNo, 
+        'dob':dob, 
+        'account':account,
+        'qrurl': qr_url
+    }
+    return render(request, 'profile/viewProfile.html', content)
 
 @login_required(login_url='/login/')
 def update_profile_view(request):
@@ -77,6 +97,7 @@ def logoutUser(request):
         logout(request)
         return redirect('loginUser')
 
+
 def signup(request):
     if request.user.is_authenticated:
         return redirect('viewProfile')
@@ -112,11 +133,10 @@ def signup(request):
                             
                             
                             user.save()
-                            account = Account.objects.create(user=user)
-                            account.save()
-                            return redirect('home')
+                            login(request,user)
+                            return redirect('viewProfile')
                     else:
                         messages.error(request, "User already exist")
             else:
                 messages.error(request, "The applicant should be 18 and above")
-    return render(request, 'auth/signup.html', )
+        return render(request, 'auth/signup.html', )

@@ -133,7 +133,7 @@ class Account(models.Model):
             qr = segno.make_qr(" ".join(details.values()))
             qr.save(file_path, scale=10)
 
-        return file_path, name
+        return name
 
     @staticmethod
     def get_qr_url(obj):

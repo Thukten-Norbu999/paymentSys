@@ -14,7 +14,7 @@
             {{account.balance}}
           </h2>
           {% if account.qrcode %}
-        <img src="./media/account_qr/640433157.png" alt="QR Code Image">
+        <img src="{{qrurl}}" alt="QR Code Image">
         {% else %}
             <p>No QR code image available.</p>
         {% endif %}
