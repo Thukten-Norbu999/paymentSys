@@ -95,7 +95,7 @@ class Account(models.Model):
     #id = models.UUIDField(default=uuid.uuid4, editable=False, primary_key=False)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     account_no = models.CharField(default=accNo() ,max_length=9, editable=False, unique=True)
-    balance = models.PositiveIntegerField(default=0)
+    balance = models.FloatField(default=0)
     qr_code_image = models.ImageField(upload_to='profile/account_qr/', blank=True, null=True)
 
     class Meta:
@@ -133,7 +133,7 @@ class Account(models.Model):
             qr = segno.make_qr(" ".join(details.values()))
             qr.save(file_path, scale=10)
 
-        return file_path, name
+        return name
 
     @staticmethod
     def get_qr_url(obj):
